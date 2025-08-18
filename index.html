@@ -5,15 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CTB Loadout Generator!</title>
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; color: #fff; }
-    body { font-family: Arial, sans-serif; } <!-- Unused -->
-    html { zoom: 0.9; } <!-- apparently works for chrome -->
-    @supports not (zoom: 0.9) {
-      #scale { transform: scale(0.9); transform-origin: 0 0; width: 111.111111%; } <!-- Firefox zoom -->
+    html, body { 
+      margin: 0; 
+      padding: 0; 
+      height: 100%; 
+      width: 100%; 
+      overflow: hidden; 
+      color: #fff; 
+    }
+    body { 
+      font-family: Arial, sans-serif; 
+      transform: scale(0.9);
+      transform-origin: 0 0;
+      width: 111.11%;
+      height: 111.11%;
     }
     html, body, * { cursor: url('asset/cursorlol.png') 8 2, url('asset/cursorlol.cur'), auto; }
     html, body, * {
-      -webkit-user-select: none; <!-- cursor needs fix -->
+      -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
@@ -23,7 +32,7 @@
     button, .thumb { cursor: url('asset/cursorlol.png') 8 2, pointer; }
     @font-face {
       font-family: 'Sarpanch';
-      src: url('Sarpanch.ttf') format('truetype'); <!-- Used font for gen -->
+      src: url('Sarpanch.ttf') format('truetype');
       font-weight: 400; font-style: normal; font-display: swap;
     }
     #bg-video { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 1; filter: brightness(0.5) contrast(1.05); }
@@ -31,7 +40,7 @@
     .logo img { width: 260px; height: auto; display: block; }
     .panel { position: absolute; top: 80px; left: 20px; right: 20px; z-index: 2; max-width: calc(100% - 40px); }
     .glass {
-      background: rgba(0, 0, 0, 0.78); <!-- This does not work, prob a black overlay with transparency would b better -->
+      background: rgba(0, 0, 0, 0.78);
       backdrop-filter: blur(1px);
       padding: 18px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
       width: max-content;
@@ -67,7 +76,7 @@
     .bottom-right .glass { width: 320px; padding: 12px; }
     .credits-img { display: block; width: 100%; height: auto; margin-bottom: 8px; user-select: none; -webkit-user-drag: none; }
     .discord-skibidi { display: block; margin-bottom: 8px; color: #8fd1ff; text-decoration: underline; cursor: pointer; user-select: none; }
-    .placeholder-frame { background: rgba(0,0,0,0.65); border-radius: 8px; padding: 8px; max-height: 140px; overflow-y: auto; font-size: 13px; color: #eee; } <!-- This went well so im gonna use it :3 -->
+    .placeholder-frame { background: rgba(0,0,0,0.65); border-radius: 8px; padding: 8px; max-height: 140px; overflow-y: auto; font-size: 13px; color: #eee; }
     .legacy-poopy-version {
       position: absolute;
       right: 20px;
@@ -87,13 +96,13 @@
 <body>
   <div id="scale">
     <video id="bg-video" autoplay loop muted playsinline>
-      <source src="asset/bgvfx.mp4" type="video/mp4" /> <!-- change this to vid at some point -->
+      <source src="asset/bgvfx.mp4" type="video/mp4" />
     </video>
     <div class="logo"><img src="asset/logomain.png" alt="Site Logo" /></div>
     <div class="panel">
       <div class="glass">
         <img class="loadout-title" src="asset/text_loadout.png" alt="Loadout" />
-        <div class="container" id="image-container"> <!-- This will house all the generating row, scout img for now lol -->
+        <div class="container" id="image-container">
           <div class="image-box" id="box1"><div class="caption"></div></div>
           <div class="image-box" id="box2"><div class="caption"></div></div>
           <div class="image-box" id="box3"><div class="caption"></div></div>
@@ -101,7 +110,7 @@
           <div class="image-box" id="box5"><div class="caption"></div></div>
         </div>
         <div class="generate-wrap">
-          <button class="generate-btn" id="generate" aria-label="Generate Loadout"> <!-- Unused, graphic below -->
+          <button class="generate-btn" id="generate" aria-label="Generate Loadout">
             <img src="interact/generate.jpg" alt="Generate" draggable="false" />
           </button>
           <button class="toggle-btn" id="toggle-golden">Golden?</button>
@@ -109,7 +118,7 @@
         </div>
         <div id="msg" class="hint">Select at least 5 images across filters to generate a full set.</div>
       </div>
-      <img class="section-title" src="asset/text_filter.png" alt="Filter" /> <!-- needs class for each title its fucking stupid fix later -->
+      <img class="section-title" src="asset/text_filter.png" alt="Filter" />
       <div class="glass filter-panel">
         <div id="regular-grid" class="filter-grid regular"></div>
       </div>
@@ -125,8 +134,8 @@
     <div class="bottom-right">
       <div class="glass">
         <img src="asset/credits.png" alt="Credits" class="credits-img" draggable="false" />
-        <a id="discord-skibidi" class="discord-skibidi" href="https://discord.gg/J48ksyNv2w" target="_blank" rel="noopener noreferrer">Join the Discord server!</a> <!-- Might want to switch to typical hyperlinks for some browsrs -->
-        <div class="placeholder-frame" id="placeholder-frame">           <!-- prob needs renaming since this ended up being used -->
+        <a id="discord-skibidi" class="discord-skibidi" href="https://discord.gg/J48ksyNv2w" target="_blank" rel="noopener noreferrer">Join the Discord server!</a>
+        <div class="placeholder-frame" id="placeholder-frame">
           <p><strong>CHANGELOG:</strong></p>
           <p>Thank you for using the CTB Loadout Generator! Old legacy version is linked below.</p>
           <p>Recoded the site so it works on a static webpage, no longer needs time to fetch images.</p>
@@ -158,7 +167,7 @@
         a.play().catch(()=>{});
       } catch (e) {}
     }
-    async function loadManifest(folder) { <!-- Imported manifest handler, might need changing for git later.. -->
+    async function loadManifest(folder) {
       const url = `${folder}/manifest.json`;
       try {
         const res = await fetch(url, { cache: 'no-store' });
@@ -197,7 +206,7 @@
             playSound('asset/woosh.ogg', 0.5);
           } else {
             selected[cat].add(src);
-            thumb.classList.add('selected'); <!-- import sound for golden soon -->
+            thumb.classList.add('selected');
             if (cat === 'golden') {
               playSound('asset/GOLDENPOWERRR.ogg', 0.5);
             } else {
@@ -232,7 +241,7 @@
       setTimeout(() => document.getElementById('generate').classList.remove('pulse'), 170);
       playSound('asset/gen.ogg');
       const msg = document.getElementById('msg');
-      const pool = poolFromSelection(); <!-- error when less than 5 imgs -->
+      const pool = poolFromSelection();
       if (pool.length < 5) { 
         msg.style.display = 'block';
         msg.classList.remove('flash'); void msg.offsetWidth; msg.classList.add('flash');
@@ -285,7 +294,7 @@
       playSound('asset/click.ogg');
     });
     document.addEventListener('dragstart', (e) => e.preventDefault());
-    window.addEventListener('DOMContentLoaded', initFilters); <!-- INIT only -->
+    window.addEventListener('DOMContentLoaded', initFilters);
   </script>
 </body>
 </html>
