@@ -1,104 +1,152 @@
 <!DOCTYPE html>
 <html lang="monkeyy">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CTB Loadout Generator!</title>
   <style>
-    html, body { 
-      margin: 0; 
-      padding: 0; 
-      height: 100%; 
-      width: 100%; 
-      overflow: hidden; 
-      color: #fff; 
+    /* base, hopefully fixed lol */
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      overflow: hidden; background: #000; color: #fff;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
-    body { 
-      font-family: Arial, sans-serif; 
-      transform: scale(0.9);
-      transform-origin: 0 0;
-      width: 111.11%;
-      height: 111.11%;
-    }
+    body { font-family: Arial, sans-serif; }
+
+    /* cursor & selection */
     html, body, * { cursor: url('asset/cursorlol.png') 8 2, url('asset/cursorlol.cur'), auto; }
-    html, body, * {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+    html, body, * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
     *:focus { outline: none !important; }
     button, .thumb { cursor: url('asset/cursorlol.png') 8 2, pointer; }
-    @font-face {
-      font-family: 'Sarpanch';
-      src: url('Sarpanch.ttf') format('truetype');
-      font-weight: 400; font-style: normal; font-display: swap;
+
+    @font-face { font-family: 'Sarpanch'; src: url('Sarpanch.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+
+    
+    #bg-video {
+      position: fixed;
+      inset: 0;                 
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;        
+      object-position: center;
+      z-index: 0;              
+      filter: brightness(0.5) contrast(1.05);
+      background: #000;
+      pointer-events: none;
     }
-    #bg-video { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 1; filter: brightness(0.5) contrast(1.05); }
+
+    
+    #bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    
+    #scale {
+      position: absolute;
+      left: 0; top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 0 0;
+      will-change: transform;
+      z-index: 2; /* above overlay & video */
+    }
+
+   
     .logo { position: absolute; top: 16px; right: 16px; left: auto; z-index: 3; }
-    .logo img { width: 260px; height: auto; display: block; }
+    .logo img { width: 450px; height: 250px; display:block; user-select:none; -webkit-user-drag:none; }
+
     .panel { position: absolute; top: 80px; left: 20px; right: 20px; z-index: 2; max-width: calc(100% - 40px); }
     .glass {
-      background: rgba(0, 0, 0, 0.78);
+      background: rgba(0,0,0,0.78);
       backdrop-filter: blur(1px);
       padding: 18px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
       width: max-content;
     }
-    .loadout-title { display: block; width: auto; height: 36px; margin: 0 0 8px 0; user-select: none; -webkit-user-drag: none; }
-    .container { display: flex; flex-direction: row; gap: 16px; }
-    .image-box { position: relative; width: 168px; height: 168px; background: #000; border: 2px solid #ffffff; border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease; }
-    .image-box img { max-width: 100%; max-height: 100%; user-select: none; -webkit-user-drag: none; pointer-events: none; }
-    .image-box:hover { transform: scale(1.06); border-color: #1e90ff; box-shadow: 0 8px 20px rgba(30,144,255,0.35); }
-    .caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 8px; background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.0)); text-align: center; font-family: 'Sarpanch', Arial, sans-serif; font-size: 14px; opacity: 0; transform: translateY(6px); transition: opacity 140ms ease, transform 140ms ease; pointer-events: none; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .image-box:hover .caption { opacity: 1; transform: translateY(0); }
-    .generate-wrap { margin-top: 14px; width: max-content; display: flex; align-items: center; gap: 10px; }
-    .generate-btn { display: inline-block; background: none; border: none; padding: 0; }
-    .generate-btn img { width: 280px; height: auto; display: block; user-select: none; -webkit-user-drag: none; }
-    .generate-btn.pulse img { animation: genpress 160ms ease; }
-    @keyframes genpress { 0%{transform:scale(1)} 50%{transform:scale(0.94)} 100%{transform:scale(1)} }
-    .toggle-btn { font-family: 'Sarpanch', Arial, sans-serif; font-size: 16px; padding: 6px 10px; background: transparent; border: 1px solid #fff; border-radius: 0; color: #fff; }
-    .section-title { margin: 10px 0 6px 4px; display: block; width: auto; height: 28px; }
-    .filter-panel { margin-top: 6px; }
-    .filter-grid { display: grid; gap: 8px; }
-    .filter-grid.regular { grid-template-columns: repeat(6, 56px); }
-    .filter-grid.exclusive { grid-template-columns: repeat(6, 48px); }
-    .filter-grid.golden { grid-template-columns: repeat(6, 48px); }
-    .thumb { width: 56px; height: 56px; border: 2px solid transparent; border-radius: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; position: relative; }
-    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
-    .thumb.selected { border-color: #29c24a; }
-    .thumb:not(.selected)::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
-    .filter-grid.exclusive .thumb, .filter-grid.golden .thumb { width: 48px; height: 48px; }
-    .hint { margin-top: 8px; margin-left: 4px; font-size: 13px; color: #ffb3b3; display: none; }
-    .hint.flash { animation: flashmsg 0.5s alternate 6; }
-    @keyframes flashmsg { from { color: red; } to { color: white; } }
-    .bottom-right { position: absolute; right: 20px; bottom: 80px; z-index: 2; }
-    .bottom-right .glass { width: 320px; padding: 12px; }
-    .credits-img { display: block; width: 100%; height: auto; margin-bottom: 8px; user-select: none; -webkit-user-drag: none; }
-    .discord-skibidi { display: block; margin-bottom: 8px; color: #8fd1ff; text-decoration: underline; cursor: pointer; user-select: none; }
-    .placeholder-frame { background: rgba(0,0,0,0.65); border-radius: 8px; padding: 8px; max-height: 140px; overflow-y: auto; font-size: 13px; color: #eee; }
-    .legacy-poopy-version {
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
-      z-index: 3;
-      color: #8fd1ff;
-      text-decoration: none;
-      background: none;
-      padding: 0;
-      font-size: 14px;
-      cursor: pointer;
-      user-select: none;
+
+    .loadout-title{ display:block; width:auto; height:36px; margin:0 0 8px 0; user-select:none; -webkit-user-drag:none; }
+
+    .container{ display:flex; flex-direction:row; gap:16px; }
+    .image-box{
+      position:relative; width:168px; height:168px; background:#000;
+      border:2px solid #fff; border-radius:14px; display:flex; align-items:center; justify-content:center;
+      overflow:hidden; transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
     }
-    @media (max-width: 980px) { .container { flex-wrap: wrap; } }
+    .image-box img{
+      max-width:100%; max-height:100%; user-select:none; -webkit-user-drag:none; pointer-events:none;
+      -webkit-transform: translateZ(0); transform: translateZ(0); backface-visibility:hidden; image-rendering: optimizeQuality;
+    }
+    .image-box:hover{ transform: scale(1.06); border-color:#1e90ff; box-shadow:0 8px 20px rgba(30,144,255,0.35); }
+
+    .caption{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:6px 8px; background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0));
+      text-align:center; font-family:'Sarpanch', Arial, sans-serif; font-size:14px;
+      opacity:0; transform:translateY(6px); transition: opacity 140ms ease, transform 140ms ease;
+      pointer-events:none; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
+    }
+    .image-box:hover .caption{ opacity:1; transform:translateY(0); }
+
+    .generate-wrap{ margin-top:14px; width:max-content; display:flex; align-items:center; gap:10px; }
+    .generate-btn{ display:inline-block; background:none; border:none; padding:0; }
+    .generate-btn img{ width:280px; height:auto; display:block; user-select:none; -webkit-user-drag:none; }
+    .generate-btn.pulse img{ animation: genpress 160ms ease; }
+    @keyframes genpress{ 0%{transform:scale(1)} 50%{transform:scale(0.94)} 100%{transform:scale(1)} }
+
+    .toggle-btn{ font-family:'Sarpanch', Arial, sans-serif; font-size:16px; padding:6px 10px; background:transparent; border:1px solid #fff; border-radius:0; color:#fff; }
+    .toggle-btn.active { background: rgba(255, 255, 255, 0.2); }
+    .section-title{ margin:10px 0 6px 4px; display:block; width:auto; height:28px; }
+    .filter-panel{ margin-top:6px; }
+    .filter-grid{ display:grid; gap:8px; }
+    .filter-grid.regular{ grid-template-columns: repeat(6, 56px); }
+    .filter-grid.exclusive{ grid-template-columns: repeat(6, 48px); }
+    .filter-grid.golden{ grid-template-columns: repeat(6, 48px); }
+
+    .thumb{
+      width:56px; height:56px; border:2px solid transparent; display:flex; align-items:center; justify-content:center;
+      overflow:hidden; background:#000; position:relative; -webkit-transform: translateZ(0); transform: translateZ(0);
+      backface-visibility:hidden; will-change: transform;
+    }
+    .thumb img{
+      width:100%; height:100%; object-fit:contain; display:block; user-select:none; -webkit-user-drag:none;
+      -webkit-transform: translateZ(0); transform: translateZ(0);
+      image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; image-rendering: optimizeQuality;
+      -ms-interpolation-mode: nearest-neighbor;
+    }
+    .thumb.selected{ border-color:#29c24a; }
+    .thumb:not(.selected)::after{ content:""; position:absolute; inset:0; background: rgba(0,0,0,0.45); }
+    .filter-grid.exclusive .thumb, .filter-grid.golden .thumb{ width:48px; height:48px; }
+
+    .hint{ margin-top:8px; margin-left:4px; font-size:13px; color:#ffb3b3; display:none; }
+    .hint.flash{ animation: flashmsg 0.5s alternate 6; }
+    @keyframes flashmsg{ from { color: red } to { color: white } }
+
+    .bottom-right{ position:absolute; right:20px; bottom:80px; z-index:2; }
+    .bottom-right .glass{ width:320px; padding:12px; }
+    .credits-img{ display:block; width:100%; height:auto; margin-bottom:8px; user-select:none; -webkit-user-drag:none; }
+    .discord-skibidi{ display:block; margin-bottom:8px; color:#8fd1ff; text-decoration:underline; cursor:pointer; user-select:none; }
+    .placeholder-frame{ background:rgba(0,0,0,0.65); border-radius:8px; padding:8px; max-height:140px; overflow-y:auto; font-size:13px; color:#eee; }
+
+    .legacy-poopy-version{ position:absolute; right:20px; bottom:20px; z-index:3; color:#8fd1ff; text-decoration:none; background:none; padding:0; font-size:14px; cursor:pointer; user-select:none; }
+
+    @media (max-width:980px){ .container{ flex-wrap: wrap; } }
   </style>
 </head>
 <body>
+
+
+  <video id="bg-video" autoplay loop muted playsinline preload="auto">
+    <source src="asset/bgvfx.mp4" type="video/mp4" />
+  </video>
+  <div id="bg-overlay"></div>
+
   <div id="scale">
-    <video id="bg-video" autoplay loop muted playsinline>
-      <source src="asset/bgvfx.mp4" type="video/mp4" />
-    </video>
     <div class="logo"><img src="asset/logomain.png" alt="Site Logo" /></div>
+
     <div class="panel">
       <div class="glass">
         <img class="loadout-title" src="asset/text_loadout.png" alt="Loadout" />
@@ -109,28 +157,35 @@
           <div class="image-box" id="box4"><div class="caption"></div></div>
           <div class="image-box" id="box5"><div class="caption"></div></div>
         </div>
+
         <div class="generate-wrap">
           <button class="generate-btn" id="generate" aria-label="Generate Loadout">
             <img src="interact/generate.jpg" alt="Generate" draggable="false" />
           </button>
           <button class="toggle-btn" id="toggle-golden">Golden?</button>
           <button class="toggle-btn" id="toggle-exclusive">Exclusive?</button>
+          <button class="toggle-btn" id="toggle-letterbox">Letterbox</button>
         </div>
+
         <div id="msg" class="hint">Select at least 5 images across filters to generate a full set.</div>
       </div>
+
       <img class="section-title" src="asset/text_filter.png" alt="Filter" />
       <div class="glass filter-panel">
         <div id="regular-grid" class="filter-grid regular"></div>
       </div>
+
       <img class="section-title" src="asset/text_exclusive.png" alt="Exclusive" />
       <div class="glass filter-panel">
         <div id="exclusive-grid" class="filter-grid exclusive"></div>
       </div>
+
       <img class="section-title" src="asset/text_golden.png" alt="Golden" />
       <div class="glass filter-panel">
         <div id="golden-grid" class="filter-grid golden"></div>
       </div>
     </div>
+
     <div class="bottom-right">
       <div class="glass">
         <img src="asset/credits.png" alt="Credits" class="credits-img" draggable="false" />
@@ -138,6 +193,7 @@
         <div class="placeholder-frame" id="placeholder-frame">
           <p><strong>CHANGELOG:</strong></p>
           <p>Thank you for using the CTB Loadout Generator! Old legacy version is linked below.</p>
+          <p>Less css issues and page now scales properly + a letterbox mode</p>
           <p>Recoded the site so it works on a static webpage, no longer needs time to fetch images.</p>
           <p>Improved UI with glass panels, removed TB mode, portrait mode and classic mode.</p>
           <p>Added a custom filter selector located right below the loadout row, allowing you to make your own filter. Generic buttons were kept.</p>
@@ -147,26 +203,81 @@
         </div>
       </div>
     </div>
-    <a id="legacy-poopy-version" class="legacy-poopy-version" href="https://zero-cache.github.io/ctb-gen-rewrite/legacy/index.html" style="position:absolute; right:20px; bottom:20px; z-index:3;" target="https://zero-cache.github.io/ctb-gen-rewrite/legacy/index.html" rel="noopener noreferrer">Legacy (Old) Version</a>
+
+    <a id="legacy-poopy-version" class="legacy-poopy-version" href="https://zero-cache.github.io/ctb-gen-rewrite/legacy/index.html" target="_blank" rel="noopener noreferrer">Legacy (Old) Version</a>
+
     <audio id="gen-sound" src="asset/gen.ogg" preload="auto"></audio>
   </div>
+
+
+  <script>
+    (function () {
+      const baseW = 1920, baseH = 1080;
+      const root = document.getElementById('scale');
+      let letterboxMode = false;
+      const letterboxBtn = document.getElementById('toggle-letterbox');
+
+      function applyScale() {
+        const vw = Math.max(window.innerWidth, 1);
+        const vh = Math.max(window.innerHeight, 1);
+        
+        let s, offsetX, offsetY;
+        
+        if (letterboxMode) {
+        
+          s = Math.min(vw / baseW, vh / baseH);
+          offsetX = Math.round((vw - baseW * s) / 2);
+          offsetY = Math.round((vh - baseH * s) / 2);
+        } else {
+     
+          s = Math.min(vw / baseW, vh / baseH);
+          offsetX = Math.round((vw - baseW * s) / 4);
+          offsetY = Math.round((vh - baseH * s) / 4);
+        }
+        
+        s = Math.max(s, 0.25); 
+        root.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${s})`;
+        root.style.transformOrigin = '0 0';
+        document.body.style.imageRendering = 'auto';
+      }
+
+  
+      letterboxBtn.addEventListener('click', () => {
+        letterboxMode = !letterboxMode;
+        letterboxBtn.classList.toggle('active', letterboxMode);
+        playSound('asset/click.ogg');
+        applyScale();
+      });
+
+      window.addEventListener('resize', applyScale);
+      window.addEventListener('orientationchange', applyScale);
+      window.addEventListener('load', applyScale);
+      applyScale();
+    })();
+  </script>
+
+ 
   <script>
     const exts = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
     const nameFromUrl = (url) => (url.split('/').pop() || '').replace(/\.[^.]+$/, '');
+
     const CATS = {
       regular: { path: 'tower/regular', grid: 'regular-grid', defaultOn: true },
       exclusive: { path: 'tower/exclusive', grid: 'exclusive-grid', defaultOn: false },
       golden: { path: 'tower/golden', grid: 'golden-grid', defaultOn: false },
     };
+
     const selected = { regular: new Set(), exclusive: new Set(), golden: new Set() };
     const catalog = { regular: [], exclusive: [], golden: [] };
+
     function playSound(path, volume = 1.0) {
       try {
         const a = new Audio(path);
         a.volume = typeof volume === 'number' ? Math.max(0, Math.min(1, volume)) : 1.0;
-        a.play().catch(()=>{});
+        a.play().catch(() => {});
       } catch (e) {}
     }
+
     async function loadManifest(folder) {
       const url = `${folder}/manifest.json`;
       try {
@@ -178,13 +289,12 @@
           .map((n) => (n.startsWith(folder + '/') ? n : `${folder}/${n}`));
       } catch (e) {
         const guesses = [];
-        for (let i = 1; i <= 50; i++) {
-          ['png', 'jpg', 'jpeg', 'webp', 'gif'].forEach((ext) => guesses.push(`${folder}/${i}.${ext}`));
-        }
+        for (let i = 1; i <= 50; i++) ['png', 'jpg', 'jpeg', 'webp', 'gif'].forEach((ext) => guesses.push(`${folder}/${i}.${ext}`));
         const checks = await Promise.allSettled(guesses.map((g) => fetch(g, { method: 'HEAD' })));
         return checks.map((r, i) => (r.status === 'fulfilled' && r.value.ok ? guesses[i] : null)).filter(Boolean);
       }
     }
+
     function renderGrid(cat, list) {
       const grid = document.getElementById(CATS[cat].grid);
       grid.innerHTML = '';
@@ -196,9 +306,11 @@
         img.draggable = false;
         img.addEventListener('dragstart', (e) => e.preventDefault());
         thumb.appendChild(img);
+
         const isOn = CATS[cat].defaultOn;
         if (isOn) selected[cat].add(src); else selected[cat].delete(src);
         thumb.classList.toggle('selected', isOn);
+
         thumb.addEventListener('click', () => {
           if (selected[cat].has(src)) {
             selected[cat].delete(src);
@@ -214,9 +326,11 @@
             }
           }
         });
+
         grid.appendChild(thumb);
       });
     }
+
     async function initFilters() {
       for (const cat of Object.keys(CATS)) {
         const list = await loadManifest(CATS[cat].path);
@@ -224,9 +338,9 @@
         renderGrid(cat, list);
       }
     }
-    function poolFromSelection() {
-      return [ ...selected.regular, ...selected.exclusive, ...selected.golden ];
-    }
+
+    function poolFromSelection() { return [...selected.regular, ...selected.exclusive, ...selected.golden]; }
+
     function pickUnique(arr, n) {
       if (arr.length <= n) return arr.slice(0, n);
       const copy = arr.slice();
@@ -236,13 +350,15 @@
       }
       return copy.slice(0, n);
     }
+
     async function generate() {
       document.getElementById('generate').classList.add('pulse');
       setTimeout(() => document.getElementById('generate').classList.remove('pulse'), 170);
       playSound('asset/gen.ogg');
+
       const msg = document.getElementById('msg');
       const pool = poolFromSelection();
-      if (pool.length < 5) { 
+      if (pool.length < 5) {
         msg.style.display = 'block';
         msg.classList.remove('flash'); void msg.offsetWidth; msg.classList.add('flash');
         playSound('asset/error.ogg');
@@ -252,6 +368,7 @@
         msg.style.display = 'none';
         msg.classList.remove('flash');
       }
+
       const chosen = pickUnique(pool, 5);
       chosen.forEach((src, i) => {
         const box = document.getElementById(`box${i + 1}`);
@@ -267,6 +384,7 @@
         box.appendChild(cap);
       });
     }
+
     document.getElementById('generate').addEventListener('click', generate);
     document.getElementById('toggle-golden').addEventListener('click', () => {
       const list = catalog.golden;
@@ -278,9 +396,7 @@
       const grid = document.getElementById('golden-grid');
       Array.from(grid.children).forEach(el => el.classList.toggle('selected', !allOn));
       playSound('asset/click.ogg');
-      if (!allOn) {
-        playSound('asset/GOLDENPOWERRR.ogg', 0.5);
-      }
+      if (!allOn) playSound('asset/GOLDENPOWERRR.ogg', 0.5);
     });
     document.getElementById('toggle-exclusive').addEventListener('click', () => {
       const list = catalog.exclusive;
@@ -293,6 +409,7 @@
       Array.from(grid.children).forEach(el => el.classList.toggle('selected', !allOn));
       playSound('asset/click.ogg');
     });
+
     document.addEventListener('dragstart', (e) => e.preventDefault());
     window.addEventListener('DOMContentLoaded', initFilters);
   </script>
